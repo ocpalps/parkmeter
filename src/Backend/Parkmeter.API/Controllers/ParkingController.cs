@@ -30,10 +30,6 @@ namespace Parkmeter.Api.Controllers
         {
             _configuration = configuration;
             _store = store;
-            _store.Initialize(
-                new Uri(_configuration["DocumentDB:Endpoint"]),
-                _configuration["DocumentDB:Key"],
-                _configuration["ConnectionStrings:Default"]);          
         }
 
         #region Parking

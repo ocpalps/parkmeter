@@ -14,6 +14,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 
 namespace Parkmeter.Api
 {
@@ -29,6 +30,15 @@ namespace Parkmeter.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var _store = new PersistenceManager();
+            _store.Initialize(
+               new Uri(Configuration["DocumentDB:Endpoint"]),
+               Configuration["DocumentDB:Key"],
+               Configuration["ConnectionStrings:Default"]);
+
+            services.AddDbContext<Parkmeter.Data.EF.ParkmeterContext>(options =>
+                options.UseSqlServer(Configuration["ConnectionStrings:Default"]));
+
             services.AddCors(o => o.AddPolicy("All", builder =>
             {
                 builder.AllowAnyOrigin()
@@ -48,9 +58,11 @@ namespace Parkmeter.Api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, Parkmeter.Data.EF.ParkmeterContext dbContext)
         {
-            
+            //execute EF migration at startup
+            dbContext.Database.Migrate();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();         
