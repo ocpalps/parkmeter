@@ -6,5 +6,3 @@ Set-Location "..\..\..\"
 Set-Location "src\FrontEnd\Parkmeter.Admin"
 Start-Process -FilePath dotnet  -ArgumentList "run", "--project Parkmeter.Admin.csproj"
 Set-Location "..\..\..\"
-
-Start-Process http://localhost:50058
