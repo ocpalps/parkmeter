@@ -1,0 +1,66 @@
+﻿@using Parkmeter.Admin.ViewModels;
+<h4 class="pull-right">
+    @User.Identity.Name
+</h4>
+
+<h1>
+    Parkings
+</h1>
+
+<h4>
+    <a asp-action="CreateNewParking">Create New Parking</a>
+</h4>
+
+@foreach (ParkingViewModel p in ViewBag.Parkings)
+{
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="panel-title">@p.Parking.Name</span>             
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-2">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <h2>@p.Status.TotalAvailableSpaces</h2>
+                        </div>
+                        <div class="panel-heading">
+                            <span class="label label-info">Total Available Spaces</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-2">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <h2>@p.Status.BusySpaces</h2>
+                        </div>
+                        <div class="panel-heading">
+                            <span class="label label-info">Busy Spaces</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-2">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <h2>@p.Status.FreeSpaces</h2>
+                        </div>
+                        <div class="panel-heading">
+                            <span class="label label-info">Free Spaces</span>
+                        </div>
+                    </div>
+                </div>
+
+         
+
+            </div>
+            <div class="panel-footer">
+                <div>
+                    <a asp-action="RemoveParking" asp-route-parkingId="@p.Parking.Id.Value" class="btn btn-danger ">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

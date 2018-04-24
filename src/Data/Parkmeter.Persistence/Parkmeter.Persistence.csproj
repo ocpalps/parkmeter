@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Parkmeter.Core\Parkmeter.Core.csproj" />
+    <ProjectReference Include="..\Parkmeter.Data.NoSql\Parkmeter.Data.NoSql.csproj" />
+    <ProjectReference Include="..\Parkmeter.Data\Parkmeter.Data.EF.csproj" />
+  </ItemGroup>
+
+</Project>
