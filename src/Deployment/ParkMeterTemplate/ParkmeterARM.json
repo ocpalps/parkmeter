@@ -12,7 +12,7 @@
     },
     "skuName": {
       "type": "string",
-      "defaultValue": "F1",
+      "defaultValue": "S1",
       "allowedValues": [
         "F1",
         "D1",
@@ -84,9 +84,10 @@
     "ApiBackendName": "[concat(parameters('applicationName'), 'Api')]",
     "SqlDatabaseName": "parkmeterdb",
     "AdminFrontEndName": "[concat(parameters('applicationName'), 'Admin')]",
-    "DocumentDefaultName": "[concat(toLower(parameters('applicationName')), 'ledger')]"
+    "DocumentDefaultName": "[concat(toLower(parameters('applicationName')), 'ledger')]",
+    "StagingSlotName": "Staging"
   },
-	"resources": [
+  "resources": [
     {
       "name": "[variables('SqlServerName')]",
       "type": "Microsoft.Sql/servers",
@@ -133,22 +134,22 @@
         }
       ]
     },
-		{
-			"apiVersion": "2015-08-01",
-			"name": "[parameters('hostingPlanName')]",
-			"type": "Microsoft.Web/serverfarms",
-			"location": "[resourceGroup().location]",
-			"tags": {
-				"displayName": "HostingPlan"
-			},
-			"sku": {
-				"name": "[parameters('skuName')]",
-				"capacity": "[parameters('skuCapacity')]"
-			},
-			"properties": {
-				"name": "[parameters('hostingPlanName')]"
-			}
-		},
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[parameters('hostingPlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "HostingPlan"
+      },
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "capacity": "[parameters('skuCapacity')]"
+      },
+      "properties": {
+        "name": "[parameters('hostingPlanName')]"
+      }
+    },
     {
       "apiVersion": "2015-08-01",
       "name": "[variables('ApiBackendName')]",
@@ -169,6 +170,21 @@
       "resources": [
         {
           "apiVersion": "2015-08-01",
+          "name": "[variables('StagingSlotName')]",
+          "type": "slots",
+          "tags": {
+            "displayName": "apiAppStagingSlot"
+          },
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('ApiBackendName'))]"
+          ],
+          "properties": {
+          },
+          "resources": []
+        },
+        {
+          "apiVersion": "2015-08-01",
           "type": "config",
           "name": "connectionstrings",
           "dependsOn": [
@@ -177,7 +193,7 @@
 
           ],
           "properties": {
-            "DefaultConnection": {
+            "Default": {
               "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('SqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('SqlDatabaseName'), ';User Id=', parameters('administratorLogin'), '@', variables('SqlserverName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
               "type": "SQLServer"
             }
@@ -255,5 +271,5 @@
       },
       "dependsOn": []
     }
-	]
+  ]
 }
