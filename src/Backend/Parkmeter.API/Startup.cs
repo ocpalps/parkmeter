@@ -30,8 +30,8 @@ namespace Parkmeter.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var _store = new PersistenceManager();
-            _store.Initialize(
+            var store = new PersistenceManager();
+            store.Initialize(
                new Uri(Configuration["DocumentDB:Endpoint"]),
                Configuration["DocumentDB:Key"],
                Configuration["ConnectionStrings:Default"]);
@@ -46,7 +46,7 @@ namespace Parkmeter.Api
                        .AllowAnyHeader();
             }));
             services.AddMvc();
-            services.AddSingleton<PersistenceManager>(new PersistenceManager());
+            services.AddSingleton<PersistenceManager>(store);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Parkmeter Api", Version = "v1" });
