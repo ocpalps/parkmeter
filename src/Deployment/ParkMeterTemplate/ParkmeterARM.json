@@ -80,16 +80,17 @@
     }
   },
   "variables": {
-    "SqlServerName": "[concat(toLower(parameters('applicationName')), 'sql')]",
-    "ApiBackendName": "[concat(parameters('applicationName'), 'Api')]",
-    "SqlDatabaseName": "parkmeterdb",
-    "AdminFrontEndName": "[concat(parameters('applicationName'), 'Admin')]",
-    "DocumentDefaultName": "[concat(toLower(parameters('applicationName')), 'ledger')]",
-    "StagingSlotName": "Staging"
+    "SqlServer-Name": "[concat(toLower(parameters('applicationName')), '-sql')]",
+    "Backend-Name": "[concat(toLower(parameters('applicationName')), '-backend')]",
+    "SqlDatabase-Name": "parkmeterdb",
+    "Frontend-Name": "[concat(toLower(parameters('applicationName')), '-frontend')]",
+    "CosmosDBDefault-Name": "[concat(toLower(parameters('applicationName')), '-ledger')]",
+    "Backend-Staging-Name": "[concat(toLower(variables('Backend-Name')), '-staging')]",
+    "Frontend-Staging-Name": "[concat(toLower(variables('Frontend-Name')), '-staging')]"
   },
   "resources": [
     {
-      "name": "[variables('SqlServerName')]",
+      "name": "[variables('SqlServer-Name')]",
       "type": "Microsoft.Sql/servers",
       "location": "[resourceGroup().location]",
       "tags": {
@@ -102,7 +103,7 @@
       },
       "resources": [
         {
-          "name": "[variables('SqlDatabaseName')]",
+          "name": "[variables('SqlDatabase-Name')]",
           "type": "databases",
           "location": "[resourceGroup().location]",
           "tags": {
@@ -110,7 +111,7 @@
           },
           "apiVersion": "2014-04-01-preview",
           "dependsOn": [
-            "[resourceId('Microsoft.Sql/servers/', variables('SqlServerName'))]"
+            "[resourceId('Microsoft.Sql/servers/', variables('SqlServer-Name'))]"
           ],
           "properties": {
             "edition": "[parameters('edition')]",
@@ -123,7 +124,7 @@
           "type": "firewallrules",
           "apiVersion": "2014-04-01-preview",
           "dependsOn": [
-            "[resourceId('Microsoft.Sql/servers/', variables('SqlServerName'))]"
+            "[resourceId('Microsoft.Sql/servers/', variables('SqlServer-Name'))]"
           ],
           "location": "[resourceGroup().location]",
           "name": "AllowAllWindowsAzureIps",
@@ -152,7 +153,7 @@
     },
     {
       "apiVersion": "2015-08-01",
-      "name": "[variables('ApiBackendName')]",
+      "name": "[variables('Backend-Name')]",
       "type": "Microsoft.Web/sites",
       "kind": "api",
       "location": "[resourceGroup().location]",
@@ -161,23 +162,23 @@
       ],
       "tags": {
         "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "empty",
-        "displayName": "ApiBackend"
+        "displayName": "Backend"
       },
       "properties": {
-        "name": "[variables('ApiBackendName')]",
+        "name": "[variables('Backend-Name')]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
       },
       "resources": [
         {
           "apiVersion": "2015-08-01",
-          "name": "[variables('StagingSlotName')]",
+          "name": "[variables('Backend-Staging-Name')]",
           "type": "slots",
           "tags": {
-            "displayName": "apiAppStagingSlot"
+            "displayName": "staging-slot-backend"
           },
           "location": "[resourceGroup().location]",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites', variables('ApiBackendName'))]"
+            "[resourceId('Microsoft.Web/Sites', variables('Backend-Name'))]"
           ],
           "properties": {
           },
@@ -188,13 +189,12 @@
           "type": "config",
           "name": "connectionstrings",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/Sites/', variables('ApiBackendName'))]",
-            "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('DocumentDefaultName'))]"
-
+            "[resourceId('Microsoft.Web/Sites/', variables('Backend-Name'))]",
+            "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('CosmosDBDefault-Name'))]"
           ],
           "properties": {
             "Default": {
-              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('SqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('SqlDatabaseName'), ';User Id=', parameters('administratorLogin'), '@', variables('SqlserverName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
+              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('SqlServer-Name'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('SqlDatabase-Name'), ';User Id=', parameters('administratorLogin'), '@', variables('SqlServer-Name'), ';Password=', parameters('administratorLoginPassword'), ';')]",
               "type": "SQLServer"
             }
           }
@@ -204,20 +204,20 @@
           "type": "config",
           "apiVersion": "2015-08-01",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', variables('ApiBackendName'))]"
+            "[resourceId('Microsoft.Web/sites', variables('Backend-Name'))]"
           ],
           "tags": {
             "displayName": "documentdb"
           },
           "properties": {
-            "DocumentDB:Key": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('DocumentDefaultName')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey]",
-            "DocumentDB:Endpoint": "[reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('DocumentDefaultName'))).documentEndpoint]"
+            "DocumentDB:Key": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('CosmosDBDefault-Name')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey]",
+            "DocumentDB:Endpoint": "[reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('CosmosDBDefault-Name'))).documentEndpoint]"
           }
         }
       ]
     },
     {
-      "name": "[variables('AdminFrontEndName')]",
+      "name": "[variables('Frontend-Name')]",
       "type": "Microsoft.Web/sites",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-08-01",
@@ -226,31 +226,72 @@
       ],
       "tags": {
         "[concat('hidden-related:', resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName')))]": "Resource",
-        "displayName": "AdminFrontEnd"
+        "displayName": "Frontend"
       },
       "properties": {
-        "name": "[variables('AdminFrontEndName')]",
+        "name": "[variables('Frontend-Name')]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
       },
       "resources": [
+        {
+          "apiVersion": "2015-04-01",
+          "name": "slotconfignames",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('Frontend-Name'))]"
+          ],
+          "properties": {
+            "appSettingNames": [ "Parkmeter:ApiUrl" ]
+          }
+        },
         {
           "name": "appsettings",
           "type": "config",
           "apiVersion": "2015-08-01",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', variables('AdminFrontEndName'))]"
+            "[resourceId('Microsoft.Web/sites', variables('Frontend-Name'))]"
           ],
           "tags": {
-            "displayName": "ParkmeterAdminSettings"
+            "displayName": "ApiUrl"
           },
           "properties": {
-            "Parkmeter:ApiUrl": "[concat('https://', variables('ApiBackendName'), '.azurewebsites.net')]"
+            "Parkmeter:ApiUrl": "[concat('https://', variables('Backend-Name'), '.azurewebsites.net')]"
           }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "name": "[variables('Frontend-Staging-Name')]",
+          "type": "slots",
+          "tags": {
+            "displayName": "staging-slot-frontend"
+          },
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('Frontend-Name'))]"
+          ],
+          "properties": {
+          },
+          "resources": [
+            {
+              "name": "appsettings",
+              "type": "config",
+              "apiVersion": "2015-08-01",
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', variables('Frontend-Name'),variables('Frontend-Staging-Name'))]"
+              ],
+              "tags": {
+                "displayName": "ApiUrl"
+              },
+              "properties": {
+                "Parkmeter:ApiUrl": "[concat('https://', variables('Backend-Staging-Name'), '.azurewebsites.net')]"
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "[variables('DocumentDefaultName')]",
+      "name": "[variables('CosmosDBDefault-Name')]",
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "kind": "GlobalDocumentDB",
       "apiVersion": "2015-04-08",
@@ -267,7 +308,7 @@
           "maxIntervalInSeconds": 5,
           "maxStalenessPrefix": 100
         },
-        "name": "[variables('DocumentDefaultName')]"
+        "name": "[variables('CosmosDBDefault-Name')]"
       },
       "dependsOn": []
     }
