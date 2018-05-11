@@ -9,13 +9,13 @@
       "value": "parkmeter"
     },
     "applicationName": {
-      "value": "Parkmeter0"
+      "value": "Parkmeter4"
     },
     "skuName": {
       "value": "S1"
     },
     "administratorLoginPassword": {
-      "value": "Password"
+      "value": "AppPassword0!"
     }
   }
 }
