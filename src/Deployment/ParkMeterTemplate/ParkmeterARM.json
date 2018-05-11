@@ -85,8 +85,8 @@
     "SqlDatabase-Name": "parkmeterdb",
     "Frontend-Name": "[toLower(parameters('applicationName'))]",
     "CosmosDBDefault-Name": "[concat(toLower(parameters('applicationName')), '-ledger')]",
-    "Backend-Staging-Name": "[concat(toLower(variables('Backend-Name')), '-staging')]",
-    "Frontend-Staging-Name": "[concat(toLower(variables('Frontend-Name')), '-staging')]"
+    "Backend-Staging-Name": "staging",
+    "Frontend-Staging-Name": "staging"
   },
   "resources": [
     {
