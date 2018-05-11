@@ -81,9 +81,9 @@
   },
   "variables": {
     "SqlServer-Name": "[concat(toLower(parameters('applicationName')), '-sql')]",
-    "Backend-Name": "[concat(toLower(parameters('applicationName')), '-backend')]",
+    "Backend-Name": "[concat(toLower(parameters('applicationName')), '-api')]",
     "SqlDatabase-Name": "parkmeterdb",
-    "Frontend-Name": "[concat(toLower(parameters('applicationName')), '-frontend')]",
+    "Frontend-Name": "[toLower(parameters('applicationName'))]",
     "CosmosDBDefault-Name": "[concat(toLower(parameters('applicationName')), '-ledger')]",
     "Backend-Staging-Name": "[concat(toLower(variables('Backend-Name')), '-staging')]",
     "Frontend-Staging-Name": "[concat(toLower(variables('Frontend-Name')), '-staging')]"
