@@ -170,6 +170,17 @@
       },
       "resources": [
         {
+          "apiVersion": "2015-04-01",
+          "name": "slotconfignames",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('Backend-Name'))]"
+          ],
+          "properties": {
+            "appSettingNames": [ "connectionstrings","documentdb" ]
+          }
+        },
+        {
           "apiVersion": "2015-08-01",
           "name": "[variables('Backend-Staging-Name')]",
           "type": "slots",
@@ -182,7 +193,38 @@
           ],
           "properties": {
           },
-          "resources": []
+          "resources": [
+            {
+              "apiVersion": "2015-08-01",
+              "type": "config",
+              "name": "connectionstrings",
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/Sites/', variables('Backend-Name'))]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('CosmosDBDefault-Name'))]"
+              ],
+              "properties": {
+                "Default": {
+                  "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('SqlServer-Name'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('SqlDatabase-Name'), ';User Id=', parameters('administratorLogin'), '@', variables('SqlServer-Name'), ';Password=', parameters('administratorLoginPassword'), ';')]",
+                  "type": "SQLServer"
+                }
+              }
+            },
+            {
+              "name": "appsettings",
+              "type": "config",
+              "apiVersion": "2015-08-01",
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('Backend-Name'))]"
+              ],
+              "tags": {
+                "displayName": "documentdb"
+              },
+              "properties": {
+                "DocumentDB:Key": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('CosmosDBDefault-Name')), providers('Microsoft.DocumentDB', 'databaseAccounts').apiVersions[0]).primaryMasterKey]",
+                "DocumentDB:Endpoint": "[reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('CosmosDBDefault-Name'))).documentEndpoint]"
+              }
+            }
+          ]
         },
         {
           "apiVersion": "2015-08-01",
