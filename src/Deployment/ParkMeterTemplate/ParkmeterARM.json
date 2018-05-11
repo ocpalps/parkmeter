@@ -325,7 +325,7 @@
                 "displayName": "ApiUrl"
               },
               "properties": {
-                "Parkmeter:ApiUrl": "[concat('https://', variables('Backend-Staging-Name'), '.azurewebsites.net')]"
+                "Parkmeter:ApiUrl": "[concat('https://', variables('Backend-Name'),'-',variables('Backend-Staging-Name'), '.azurewebsites.net')]"
               }
             }
           ]
