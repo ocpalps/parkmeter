@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Rest;
@@ -11,9 +10,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Parkmeter.SDK.Models;
+//#### STEP 05
+//using Microsoft.AspNetCore.Authorization;
 
 namespace Parkmeter.Admin.Controllers
 {
+    //#### STEP 05
+    //[Authorize]
     public class HomeController : Controller
     {
         private async Task<IParkmeterApi> InitializeClient()

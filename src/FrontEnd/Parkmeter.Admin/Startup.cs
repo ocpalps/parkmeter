@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+//#### STEP 02
+//using Microsoft.AspNetCore.Authentication.AzureADB2C.UI;
+//using Microsoft.AspNetCore.Authentication;
 
 namespace Parkmeter.Admin
 {
@@ -22,8 +25,12 @@ namespace Parkmeter.Admin
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IConfiguration>(Configuration);
-        
-            services.AddMvc();
+
+            //#### STEP 03
+            //services.AddAuthentication(AzureADB2CDefaults.AuthenticationScheme)
+            //    .AddAzureADB2C(options => Configuration.Bind("AzureAdB2C", options));
+
+            //services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,7 +47,11 @@ namespace Parkmeter.Admin
             }
 
             app.UseStaticFiles();
-            
+
+            //#### STEP 04
+            //app.UseHttpsRedirection();
+            //app.UseAuthentication();
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
