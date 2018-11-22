@@ -39,8 +39,45 @@ namespace Parkmeter.Persistence
                 //NoSql initialization
 
                 //this class expect a configuration
-                
-                AccessLedger = new Ledger(ledgerEndpoint, ledgerKey);
+
+                // AccessLedger = new Ledger(ledgerEndpoint, ledgerKey);
+
+                AccessLedger = new LedgerServerLess(ledgerEndpoint);
+
+                AccessLedger.Initialize();
+
+                IsInitialized = AccessLedger.IsInizialized;
+            }
+            catch (Exception)
+            {
+                IsInitialized = false;
+            }
+        }
+
+        public void InitializeServeless(Uri functionsEndpoint, string sqlConnectionString)
+        {
+            if (IsInitialized) return;
+
+            if (functionsEndpoint == null)
+                throw new InvalidDataException("Functions settings are invalid");
+
+            if (String.IsNullOrEmpty(sqlConnectionString))
+                throw new InvalidDataException("Sql settings are invalid");
+
+            try
+            {
+                //EF initialization
+                EFRepositoryFactory factory = new EFRepositoryFactory();
+                ParkingsStore = factory.CreateRepository<Parking>(sqlConnectionString);
+                SpacesStore = factory.CreateRepository<Space>(sqlConnectionString);
+
+                //NoSql initialization
+
+                //this class expect a configuration
+
+
+                AccessLedger = new LedgerServerLess(functionsEndpoint);
+
                 AccessLedger.Initialize();
 
                 IsInitialized = AccessLedger.IsInizialized;

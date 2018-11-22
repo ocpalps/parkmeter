@@ -11,12 +11,12 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Parkmeter.SDK.Models;
 //#### STEP 05
-//using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Parkmeter.Admin.Controllers
 {
     //#### STEP 05
-    //[Authorize]
+    [Authorize]
     public class HomeController : Controller
     {
         private async Task<IParkmeterApi> InitializeClient()
@@ -107,7 +107,34 @@ namespace Parkmeter.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-      
+        public async Task<IActionResult> RegisterIn(int parkingId)
+        {
+            if (ModelState.IsValid)
+            {
+                var _apiClient = await InitializeClient();
+                if (_apiClient == null) return Error();
+
+                _apiClient.RegisterVehicleIn(parkingId,"AA12345");
+
+            }
+            return RedirectToAction("Index");
+        }
+
+
+        public async Task<IActionResult> RegisterOut(int parkingId)
+        {
+            if (ModelState.IsValid)
+            {
+                var _apiClient = await InitializeClient();
+                if (_apiClient == null) return Error();
+
+                _apiClient.RegisterVehicleOut(parkingId, "AA12345");
+
+            }
+            return RedirectToAction("Index");
+        }
+
+
 
     }
 }
