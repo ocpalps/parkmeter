@@ -31,13 +31,9 @@ namespace Parkmeter.Api
         public void ConfigureServices(IServiceCollection services)
         {
             var store = new PersistenceManager();
-            //store.Initialize(
-            //   new Uri(Configuration["DocumentDB:Endpoint"]),
-            //   Configuration["DocumentDB:Key"],
-            //   Configuration["ConnectionStrings:Default"]);
-
-            store.InitializeServeless(
-               new Uri(Configuration["CosmosDBFunctions:Endpoint"]),
+            store.Initialize(
+               new Uri(Configuration["DocumentDB:Endpoint"]),
+               Configuration["DocumentDB:Key"],
                Configuration["ConnectionStrings:Default"]);
 
             services.AddDbContext<Parkmeter.Data.EF.ParkmeterContext>(options =>

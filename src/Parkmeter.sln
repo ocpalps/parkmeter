@@ -32,8 +32,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parkmeter.SDK", "Common\Par
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParkMeter.UnitTests", "Tests\ParkMeter.UnitTests\ParkMeter.UnitTests.csproj", "{31476314-9EAE-4EA7-9B8B-D898AA54F05E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parkmeter.Functions", "BackEnd\Parkmeter.Functions\Parkmeter.Functions.csproj", "{BE82A638-0A7B-443E-A5EF-84A884D3E276}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Backend|Any CPU = Backend|Any CPU
@@ -110,14 +108,6 @@ Global
 		{31476314-9EAE-4EA7-9B8B-D898AA54F05E}.Frontend|Any CPU.Build.0 = Frontend|Any CPU
 		{31476314-9EAE-4EA7-9B8B-D898AA54F05E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31476314-9EAE-4EA7-9B8B-D898AA54F05E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BE82A638-0A7B-443E-A5EF-84A884D3E276}.Backend|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE82A638-0A7B-443E-A5EF-84A884D3E276}.Backend|Any CPU.Build.0 = Debug|Any CPU
-		{BE82A638-0A7B-443E-A5EF-84A884D3E276}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE82A638-0A7B-443E-A5EF-84A884D3E276}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE82A638-0A7B-443E-A5EF-84A884D3E276}.Frontend|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE82A638-0A7B-443E-A5EF-84A884D3E276}.Frontend|Any CPU.Build.0 = Debug|Any CPU
-		{BE82A638-0A7B-443E-A5EF-84A884D3E276}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE82A638-0A7B-443E-A5EF-84A884D3E276}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -132,7 +122,6 @@ Global
 		{221D28A0-23C0-4F29-851F-8E2D26085518} = {F648CA9F-CE5E-477C-86FC-408013AEF175}
 		{E3C789C2-B9F6-4056-8219-425DC20F80E5} = {F648CA9F-CE5E-477C-86FC-408013AEF175}
 		{31476314-9EAE-4EA7-9B8B-D898AA54F05E} = {34636E8B-43CF-4076-BBEF-E73400178C4A}
-		{BE82A638-0A7B-443E-A5EF-84A884D3E276} = {8E5744F2-BA48-4B14-85EC-098746EC9C4C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E85E1D53-C9AE-4DB4-BED7-783C0E1DC909}

@@ -16,10 +16,3 @@ Set-Location "src\FrontEnd\Parkmeter.Admin"
 Start-Process -FilePath dotnet  -ArgumentList "run", "--project Parkmeter.Admin.csproj"
 Set-Location "..\..\..\"
 
-# FUNCTIONS
-# DOWNLOAD LATEST RUNTIME
-Start-Process npm -ArgumentList "install azure-functions-core-tools -g" -wait
-
-Set-Location "src\BackEnd\Parkmeter.Functions\bin\Debug\netcoreapp2.1"
-Start-Process func -ArgumentList "start"
-Set-Location "..\..\..\"
