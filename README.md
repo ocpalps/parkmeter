@@ -1,4 +1,4 @@
-# parkmeter
+# Parkmeter
 
 Example demo project used in **hands-on labs** to demonstrate several techniques and some reference patterns.
 The idea is to mimic a common architecture for a modern web solution.
