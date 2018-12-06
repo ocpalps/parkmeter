@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28315.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parkmeter.Api", "BackEnd\Parkmeter.API\Parkmeter.Api.csproj", "{D73D604C-FBBF-4662-A147-F7C60F3A7CF0}"
 EndProject
@@ -32,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parkmeter.SDK", "Common\Par
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParkMeter.UnitTests", "Tests\ParkMeter.UnitTests\ParkMeter.UnitTests.csproj", "{31476314-9EAE-4EA7-9B8B-D898AA54F05E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parkmeter.Functions", "BackEnd\Parkmeter.Functions\Parkmeter.Functions.csproj", "{BE82A638-0A7B-443E-A5EF-84A884D3E276}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parkmeter.Functions", "BackEnd\Parkmeter.Functions\Parkmeter.Functions.csproj", "{BE82A638-0A7B-443E-A5EF-84A884D3E276}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
