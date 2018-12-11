@@ -1,0 +1,11 @@
+{
+  "name": "Parkmeter",
+  "version": "1.0.0",
+  "scripts": {
+    "generate-sdk": "autorest --namespace=Parkmeter.SDK --input-file=http://localhost:57736/swagger/v1/swagger.json --output-folder=..\\..\\Common\\Parkmeter.SDK --csharp"
+  },
+  "dependencies": {
+    "autorest": "^2.0.4245",
+    "g": "^2.0.1"
+  }
+}
