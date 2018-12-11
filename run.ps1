@@ -9,7 +9,7 @@ if (-Not $cosmos) {
 
 
 Set-Location ".\src\BackEnd\Parkmeter.API"
-Start-Process -FilePath dotnet  -ArgumentList "run", "--project Parkmeter.Api.csproj" -RedirectStandardOutput "dotnet_err_api.txt"
+Start-Process -FilePath dotnet  -ArgumentList "run", "--project Parkmeter.Api.csproj" -RedirectStandardError "dotnet_err_api.txt"
 
 Set-Location "..\..\..\"
 
