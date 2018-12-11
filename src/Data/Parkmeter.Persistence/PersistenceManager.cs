@@ -19,11 +19,11 @@ namespace Parkmeter.Persistence
 
 
 
-        public void Initialize(Uri ledgerEndpoint, string ledgerKey, string sqlConnectionString)
+        public void Initialize(Uri functionsEndpoint, string sqlConnectionString)
         {
             if (IsInitialized) return;
 
-            if (ledgerEndpoint == null || String.IsNullOrEmpty(ledgerKey))
+            if (functionsEndpoint == null)
                 throw new InvalidDataException("DocumentDB settings are invalid");
 
             if (String.IsNullOrEmpty(sqlConnectionString))
@@ -40,42 +40,6 @@ namespace Parkmeter.Persistence
 
                 //this class expect a configuration
 
-                // AccessLedger = new Ledger(ledgerEndpoint, ledgerKey);
-
-                AccessLedger = new LedgerServerLess(ledgerEndpoint);
-
-                AccessLedger.Initialize();
-
-                IsInitialized = AccessLedger.IsInizialized;
-            }
-            catch (Exception)
-            {
-                IsInitialized = false;
-            }
-        }
-
-        public void InitializeServeless(Uri functionsEndpoint, string sqlConnectionString)
-        {
-            if (IsInitialized) return;
-
-            if (functionsEndpoint == null)
-                throw new InvalidDataException("Functions settings are invalid");
-
-            if (String.IsNullOrEmpty(sqlConnectionString))
-                throw new InvalidDataException("Sql settings are invalid");
-
-            try
-            {
-                //EF initialization
-                EFRepositoryFactory factory = new EFRepositoryFactory();
-                ParkingsStore = factory.CreateRepository<Parking>(sqlConnectionString);
-                SpacesStore = factory.CreateRepository<Space>(sqlConnectionString);
-
-                //NoSql initialization
-
-                //this class expect a configuration
-
-
                 AccessLedger = new LedgerServerLess(functionsEndpoint);
 
                 AccessLedger.Initialize();
@@ -88,6 +52,7 @@ namespace Parkmeter.Persistence
             }
         }
 
+      
         #region "Parking methods"
         public PersistenceResult DeleteParking(int parkingID)
         {
