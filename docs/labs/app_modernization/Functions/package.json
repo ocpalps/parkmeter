@@ -1,0 +1,7 @@
+{
+    "name": "parkmeter",
+    "version": "1.0.0",
+    "devDependencies": {
+        "azure-functions-core-tools": "~2.3.148"
+    }
+}
