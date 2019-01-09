@@ -1,110 +1,105 @@
-# App Modernization Lab
+# DevOps Lab
 
-The goal of this lab is to modernize the solution adding serverless functionalities and securing the Frontend layer with **Azure AD B2C**.
-The lab is divided in two parts: 
-- Azure AD integration for login
-- Azure Functions and Cosmos DB integration (serverless)
+The goal of this lab is to implement CI/CD for this project in order to fully automatize the build and release process. This shows also how to automatically create an Azure infrastructure (IaaC).
+The lab is divided in several parts:
+- Creation of BUILD definitions for CI
+- Deployment of Azure infrastructure (IaaC)
+- Creation of RELEASE definitions for CD
+- Test of CI/CD
+At the end of the lab the project will be under source control and every change will trigger a new deployment in the production environment.
 
-# 1 - Azure AD B2C to Parkmeter.Admin
+# 0 - Getting started
 
-- Update project target framework to **.NET Core 2.1**
-- Update NuGet Packages:
-  - Newtonsoft.Json (**latest stable**)
-  - Microsoft.VisualStudio.Web.CodeGeneration.Design (**2.1.6**)
-  - Microsoft.AspNetCore.All (**2.1.6**)
-- Add NuGet Packages:
-  - Microsoft.AspNetCore.Authentication.AzureADB2C.UI (**2.1.1**)
-- Add Azure AD B2C settings in **appsettings.json**
-    ```json 
-    "AzureAdB2C": {
-    "Instance": "https://parkmeter.b2clogin.com/tfp/",
-    "ClientId": "41a7bd7f-3d45-44b7-98e8-b02303ed08e9",
-    "CallbackPath": "/signin-oidc",
-    "Domain": "parkmeter.onmicrosoft.com",
-    "SignUpSignInPolicyId": "B2C_1_susi",
-    "ResetPasswordPolicyId": "B2C_1_pwdres",
-    "EditProfilePolicyId": ""
-  },
-    ```
-- Add the using statements to **Startup.cs**
-    ```csharp 
-        using Microsoft.AspNetCore.Authentication.AzureADB2C.UI;
-        using Microsoft.AspNetCore.Authentication;
-    ```
-- Add Authentication service inside **ConfigureServices** method above **services.AddMvc();** line
-    ```csharp 
-        services.AddAuthentication(AzureADB2CDefaults.AuthenticationScheme)
-                .AddAzureADB2C(options => Configuration.Bind("AzureAdB2C", options));
-    ```
-- Add configurations to **Configure** method below **app.UseStaticFiles();** line
-    ```csharp 
-        app.UseHttpsRedirection();
-        app.UseAuthentication();
-    ```
-- in the **HomeController.cs** add the using statement
-    ```csharp 
-        using Microsoft.AspNetCore.Authorization;
-    ```
-- Add the **[Authorize]** attibute to **HomeController** class
-    ```csharp 
-        [Authorize]
-        public class HomeController : Controller
-        {
-            private async Task<IParkmeterApi> InitializeClient()
-            {
-                IParkmeterApi _apiClient = new ParkmeterApi();
-                _apiClient.BaseUri = new Uri(Configuration["Parkmeter:ApiUrl"]);
-
-                return _apiClient;
-            }
-    ```
+- Download the **stage 0** source code from [here](https://github.com/ocpalps/parkmeter/archive/0.zip)
+- unzip the folder and execute **run.ps1**. The project must build successfully and launch two console applications. You might need to give missing persmissions to execute the powershell script:
+```powershell
+Set-ExecutionPolicy Unrestricted
+```
+- Browse to [http://localhost:50058/](http://localhost:50058/) and verify that the website works and allows to add a new parking
 
 
-# 2 - Azure Functions
+# 1 - Create a new Azure DevOps project
+- Login to Azure DevOps with your Microsoft Account
+- Create a new Project of type GIT
+- Go to **Repos** and copy the URL of this new project.
+ ![clone](images/devops-clone.png)
+- In your machine clone into a new folder (*ParkmeterLab*)
+```git
+git clone https://[youraccountname].visualstudio.com/[ProjectName]/_git/[ProjectName]
+```
+- At this stage you need to manually copy the downloaded source code (content of *parkmeter-0* folder) into the new project folder (*ParkmeterLab*)
+- Commit and sync the changes to the repository:
+```git
+git add .
+git commit -a -m "initial commit"
+git push
+```
+In your DevOps repo you should now have all the source code:
+ ![sourcecode](images/devops-sourcecode.png)
 
-- Create a new Azure Functions Project (**Empty template**)
-- Add COSMOS DB url in **local.settings.json**
-    ```json 
-        "ConnectionStrings": {
-          "CosmosDBEndpoint": "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
-        },
-    ```
-- Add reference to project **Parkmeter.Core**
-- Add NuGet package
-  - **Microsoft.Azure.WebJobs.Extensions.CosmosDB**
-- Add the two source files **VehicleAccessDocument.cs** + **CosmosDBFunctions.cs**
-- in the project **Parkmeter.Data.NoSql** add the File **LedgerServerLess.cs**
-- in the project **Parkmeter.Persistence** change the dependency injection in **PersistenceManager.cs** (line 43):
-    ```csharp 
-        // AccessLedger = new Ledger(ledgerEndpoint, ledgerKey);
-        AccessLedger = new LedgerServerLess(ledgerEndpoint);
-    ```
-    - Modify **Initialize** method signature as
-        ```csharp        
-            public void Initialize(Uri functionsEndpoint, string sqlConnectionString)
-       ```
-    - Remove **String.IsNullOrEmpty(ledgerKey)** from the first if condition
-- in the project **Parkmeter.Api** we need to configure the new functions.
-  - Add endpoint configuration in **appsettings.json**:
-    ```json
-        {
-            ...
-    
-            "CosmosDBFunctions": {
-                "Endpoint": "http://localhost:7071/api/"
-            }
-            ...
-        }
-    ```
-  - in **Startup.cs** modify method **ConfigureServices** as
-    ```csharp
-        //store.Initialize(
-        //new Uri(Configuration["DocumentDB:Endpoint"]),
-        //Configuration["DocumentDB:Key"],
-        //Configuration["ConnectionStrings:Default"]);
+# 2 - Create build definitions
+## BACKEND build
+- In Azure DevOps go to *Pipelines* and create a new **Build** definition
+  - Choose **ASP.NET Core** template
+  - Rename to *ParkmeterLab-Backend*
+  - Set **Agent Pool** to *Hosted VS2017*
+  - Set **Project to restore and build** to ***\Parkmeter.Api.csproj*
+  - In **Variables** set *BuildConfiguration* to *Backend*
+  - In **Triggers** enable *Continous Integration* and add two path filters:
+    - *\src\BackEnd*
+    - *\src\Tests*
 
-        store.Initialize(
-        new Uri(Configuration["CosmosDBFunctions:Endpoint"]),
-        Configuration["ConnectionStrings:Default"]);
-    ```
-- Copy **run.ps1** and **package.json** in the solution root folder (replacing existing files)
+    ![pathfilters](images/devops-pathfilters.png)
+
+  - Uncheck the *Publish Web Projects* checkbox from **Publish** task 
+  - Save the definition and queue a new build
+
+## FRONTEND build
+- Create a new **Build** definition
+  - Choose **ASP.NET Core** template
+  - Rename to *ParkmeterLab-Frontend*
+  - Set **Agent Pool** to *Hosted VS2017*
+  - Set **Project to restore and build** to ***\Parkmeter.Admin.csproj*
+  - In **Variables** set *BuildConfiguration* to *Frontend*
+  - In **Triggers** enable *Continous Integration* and add a path filters:
+    - *\src\FrontEnd*
+  - Uncheck the *Publish Web Projects* checkbox from **Publish** task 
+  - Save the definition
+
+# 3 - Deploy Azure Infrastructure
+The Azure infrastructure required to host this solution is already defined in the *Deployment* project via [ARM template](/src/Deployment/ParkMeterTemplate/ParkmeterARM.json).
+You have many options to deploy the ARM template:
+- executing the Deployment project
+- from powershell or CLI
+- from azure portal
+
+# 3 - Create release definitions
+- In Azure DevOps go to *Pipelines* and create a new **Release** definition
+  - Start from the **Empty job** template
+  - Add two artifacts, one for *ParkmeterLab-Backend* and one for *ParkmeterLab-Frontend* pipelines. Set default version to *Latest*
+   ![devops-release](images/devops-release.png)
+  - Rename *Stage 0* to *Staging* and:
+    - Add a new *Azure App Service Deploy* task:
+      - DiplayName: *BackEnd*
+      - Link your Azure subscription to Azure DevOps (click manage/authorize to insert your credentials). You will be able to see your created resources once the subscrition is  successfully linked.
+      - Select the artifact from the API build definition output
+      ![zip](images/devops-zip.png)
+      - App Type: *API APP*
+      - App Service Name: *your azure resource name*
+      - Deploy to Slot: *checked*
+      - Slot: *your azure slot resource name*
+    - Add another task at the same way for *FrontEnd*. Change the setting to *WEB APP* and choose the right azure resources
+    - Create a new Stage with name *Prod* using the **Empty job** template:
+     - Add a new *Azure App Service Manage* task
+        - Set *Action* to *Swap slot*
+        - Select the *App Service Name* of the API resource
+        - Source slot: *Staging*
+        - Check *swap with production*
+     - Add another task at the same way for *FrontEnd*.
+
+![final](images/devops-final.png)
+
+# 4 - Test CI/CD
+At this stage the project is under source control and configured for CI/CD. Any change to this repository code will trigger a new build. If the build succeedes a new release is queued for the staging environment.
+
+As per our configuration the code will flow directly from the staging environment to the production one without any check or approval. It will be better to gate this flow with an administration approval (you can easily set this in Azure DevOps)

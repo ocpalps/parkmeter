@@ -5,6 +5,26 @@ The lab is divided in two parts:
 - Azure AD integration for login
 - Azure Functions and Cosmos DB integration (serverless)
 
+# 0 - Getting started
+
+## Build the project
+- Download the **stage 0** source code from [here](https://github.com/ocpalps/parkmeter/archive/0.zip)
+- unzip the folder and execute **run.ps1**. The project must build successfully and launch two console applications. You might need to give missing persmissions to execute the powershell script:
+```powershell
+Set-ExecutionPolicy Unrestricted
+```
+- Browse to [http://localhost:50058/](http://localhost:50058/) and verify that the website works and allows to add a new parking
+
+## Create new Azure AD B2C tenant
+- Login to Azure portal and create a new AD B2C resource
+- Copy the domain name value
+- Choose *"Local Account/Email"* as **Identity Provider**
+- Create two new *"User Flow"*:
+  - singin and signup with name *"susi"*
+  - reset password with name *"pwdres"*
+- Create a new Application of type Web (enable *"Implicit Flow"*) and copy the Application ID value
+
+
 # 1 - Azure AD B2C to Parkmeter.Admin
 
 - Update project target framework to **.NET Core 2.1**
@@ -14,13 +34,22 @@ The lab is divided in two parts:
   - Microsoft.AspNetCore.All (**2.1.6**)
 - Add NuGet Packages:
   - Microsoft.AspNetCore.Authentication.AzureADB2C.UI (**2.1.1**)
-- Add Azure AD B2C settings in **appsettings.json**
+- Add Azure AD B2C settings in **appsettings.json** using the following table to match between portal and JSON names:
+
+ Portal Name | .NET Name | Description | Example
+--- | --- | --- | ---
+Application ID | `ClientID` | |*41a7bd7f-3d45-44b7-98e8-b02303ed08e2*
+Domain Name | `Domain` | FQDN of your tenant (with *.onmicrosoft.com*) | *parkmeter.onmicrosoft.com*
+Resource Name  | `Instance` | Use the format *https://[TENANT_NAME].b2clogin.com/tfp/* where tenant name is your 3rd level domain name (without *.onmicrosoft.com*)  | *https://parkmeter.b2clogin.com/tfp/*
+
+
+
     ```json 
     "AzureAdB2C": {
-    "Instance": "https://parkmeter.b2clogin.com/tfp/",
-    "ClientId": "41a7bd7f-3d45-44b7-98e8-b02303ed08e9",
+    "Instance": "[XXXXXXXX]",
+    "ClientId": "[YYYYYYYY]",
     "CallbackPath": "/signin-oidc",
-    "Domain": "parkmeter.onmicrosoft.com",
+    "Domain": "[ZZZZZZZZ]",
     "SignUpSignInPolicyId": "B2C_1_susi",
     "ResetPasswordPolicyId": "B2C_1_pwdres",
     "EditProfilePolicyId": ""
