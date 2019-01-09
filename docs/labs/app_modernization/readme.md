@@ -8,8 +8,8 @@ The lab is divided in two parts:
 # 0 - Getting started
 
 ## Build the project
-- Download the **stage 0** source code from [here](https://github.com/ocpalps/parkmeter/archive/0.zip)
-- unzip the folder and execute **run.ps1**. The project must build successfully and launch two console applications. You might need to give missing persmissions to execute the powershell script:
+- download the **stage 0** source code from [here](https://github.com/ocpalps/parkmeter/archive/0.zip)
+- unzip the folder and execute **run.ps1**. The project must build successfully and launches two console applications. You might need to give missing persmissions to execute the powershell script:
 ```powershell
 Set-ExecutionPolicy Unrestricted
 ```

@@ -6,12 +6,13 @@ The lab is divided in several parts:
 - Deployment of Azure infrastructure (IaaC)
 - Creation of RELEASE definitions for CD
 - Test of CI/CD
+
 At the end of the lab the project will be under source control and every change will trigger a new deployment in the production environment.
 
 # 0 - Getting started
 
-- Download the **stage 0** source code from [here](https://github.com/ocpalps/parkmeter/archive/0.zip)
-- unzip the folder and execute **run.ps1**. The project must build successfully and launch two console applications. You might need to give missing persmissions to execute the powershell script:
+- download the **stage 0** source code from [here](https://github.com/ocpalps/parkmeter/archive/0.zip)
+- unzip the folder and execute **run.ps1**. The project must build successfully and launches two console applications. You might need to give missing persmissions to execute the powershell script:
 ```powershell
 Set-ExecutionPolicy Unrestricted
 ```
@@ -20,7 +21,7 @@ Set-ExecutionPolicy Unrestricted
 
 # 1 - Create a new Azure DevOps project
 - Login to Azure DevOps with your Microsoft Account
-- Create a new Project of type GIT
+- Create a new Project of type **Git**
 - Go to **Repos** and copy the URL of this new project.
  ![clone](images/devops-clone.png)
 - In your machine clone into a new folder (*ParkmeterLab*)
@@ -89,13 +90,15 @@ You have many options to deploy the ARM template:
       - Deploy to Slot: *checked*
       - Slot: *your azure slot resource name*
     - Add another task at the same way for *FrontEnd*. Change the setting to *WEB APP* and choose the right azure resources
+
+
     - Create a new Stage with name *Prod* using the **Empty job** template:
-     - Add a new *Azure App Service Manage* task
+      - Add a new *Azure App Service Manage* task
         - Set *Action* to *Swap slot*
         - Select the *App Service Name* of the API resource
         - Source slot: *Staging*
         - Check *swap with production*
-     - Add another task at the same way for *FrontEnd*.
+      - Add another task at the same way for *FrontEnd*.
 
 ![final](images/devops-final.png)
 
