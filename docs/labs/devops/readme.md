@@ -78,7 +78,9 @@ You have many options to deploy the ARM template:
 - In Azure DevOps go to *Pipelines* and create a new **Release** definition
   - Start from the **Empty job** template
   - Add two artifacts, one for *ParkmeterLab-Backend* and one for *ParkmeterLab-Frontend* pipelines. Set default version to *Latest*
-   ![devops-release](images/devops-release.png)
+
+  ![devops-release](images/devops-release.png)
+  
   - Rename *Stage 0* to *Staging* and:
     - Add a new *Azure App Service Deploy* task:
       - DiplayName: *BackEnd*
