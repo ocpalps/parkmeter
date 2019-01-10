@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Ledger.cs" />
     <Compile Remove="UpdateParkingStatus.cs" />
   </ItemGroup>
 

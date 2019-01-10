@@ -195,6 +195,25 @@ namespace Parkmeter.Persistence
             return status;
         }
 
+        public async Task<VehicleAccess> GetLastVehicleAccess(int parkingID, string vehicleId)
+        {
+            VehicleAccess access = null;
+            try
+            {
+                //get last access of a specific vehicle from the ledger
+                access = await AccessLedger.GetLastVehicleAccessAsync(parkingID, vehicleId);
+
+                //if there isn't an access in the ledger, return null
+                return access;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return access;
+        }
+
         public async Task<PersistenceResult> RegisterAccessAsync(VehicleAccess access)
         {
             PersistenceResult result;

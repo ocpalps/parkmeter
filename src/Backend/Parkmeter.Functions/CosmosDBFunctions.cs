@@ -35,6 +35,23 @@ namespace Parkmeter.Functions
             return new OkObjectResult(status);
         }
 
+        [FunctionName("CosmosDB-GetLastVehicleAccess")]
+        public static IActionResult GetLastVehicleAccess(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getlastvehicleaccess/{parkingId}/{vehicleId}")] HttpRequestMessage req,
+            [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint",
+            SqlQuery = "SELECT TOP 1 * FROM c WHERE c.ParkingID = {parkingId} AND c.VehicleID = {vehicleId} ORDER BY c.TimeStamp DESC", CreateIfNotExists = true)] IEnumerable<dynamic> docs,
+            int parkingId,
+            string vehicleId,
+            ILogger log)
+        {
+            if (docs == null || docs.Count() == 0)
+                return new NotFoundResult();
+            var doc = docs.FirstOrDefault();
+
+            VehicleAccess va = JsonConvert.DeserializeObject<VehicleAccess>(doc.ToString());
+
+            return new OkObjectResult(va);
+        }
 
         [FunctionName("CosmosDB-RegisterAccess")]
         public static IActionResult RegisterAccessAsync(

@@ -62,10 +62,29 @@ namespace Parkmeter.Data.NoSql
                 try
                 {
                     client.BaseAddress = Endpoint;
-                    var result = await client.GetAsync("getparkingstatus/"+parkingId);
+                    var result = await client.GetAsync("getparkingstatus/" + parkingId);
                     result.EnsureSuccessStatusCode();
                     ParkingStatus status = JsonConvert.DeserializeObject<ParkingStatus>(await result.Content.ReadAsStringAsync());
                     return status;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+            }
+        }
+
+        public async Task<VehicleAccess> GetLastVehicleAccessAsync(int parkingId, string vehicleId)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    client.BaseAddress = Endpoint;
+                    var result = await client.GetAsync($"getlastvehicleaccess/{parkingId}/{vehicleId}");
+                    result.EnsureSuccessStatusCode();
+                    VehicleAccess access = JsonConvert.DeserializeObject<VehicleAccess>(await result.Content.ReadAsStringAsync());
+                    return access;
                 }
                 catch (Exception ex)
                 {
