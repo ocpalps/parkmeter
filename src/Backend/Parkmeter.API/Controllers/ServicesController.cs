@@ -14,7 +14,7 @@ using Swashbuckle.Swagger.Annotations;
 
 namespace Parkmeter.Api.Controllers
 {
-    [Route("api/Services")]
+    [Route("[controller]")]
     public class ServicesController : Controller
     {
         private PersistenceManager _store;
@@ -32,15 +32,13 @@ namespace Parkmeter.Api.Controllers
             _subscriptionKey = _configuration.GetSection("CognitiveServices")["SubscriptionKey"];
         }
 
-        [HttpGet("{parkingId}")]
+        [HttpGet("{parkingId}/{imageUrl}")]
         [SwaggerOperation(operationId: "CheckVehiclePresence")] //for autorest
         [Produces("application/json", Type = typeof(bool))]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> CheckVehiclePresence(int parkingId)
-        { 
-            string remoteImageUrl = @"https://www.sostariffe.it/news/wp-content/uploads/2017/06/Targa.jpg";
-
+        public async Task<IActionResult> CheckVehiclePresence(int parkingId, string imageUrl)
+        {
             if (!_store.IsInitialized)
                 return StatusCode(StatusCodes.Status500InternalServerError, "Not initialized");
 
@@ -57,7 +55,7 @@ namespace Parkmeter.Api.Controllers
 
             computerVision.Endpoint = _configuration.GetSection("CognitiveServices")["Endpoint"];
 
-            var result = await ExtractRemoteTextAsync(computerVision, remoteImageUrl);
+            var result = await ExtractRemoteTextAsync(computerVision, Uri.UnescapeDataString(imageUrl));
 
             if (result.Status != TextOperationStatusCodes.Succeeded)
                 return BadRequest();
