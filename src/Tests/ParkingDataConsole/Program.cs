@@ -110,13 +110,13 @@ namespace Parkmeter.ParkingDataConsole
                     DateTime parkingDay = new DateTime(2018, month, day, 8, 00, 00);
 
                     // less parking on weekends
-                    int numberOfVehicles = 10;
+                    int numberOfVehicles = 100;
                     if (parkingDay.DayOfWeek == DayOfWeek.Sunday || parkingDay.DayOfWeek == DayOfWeek.Saturday)
-                        numberOfVehicles = 1;
+                        numberOfVehicles = 30;
 
                     for (; numberOfVehicles > 0; numberOfVehicles--)
                     {
-                        string vehicleId = $"BD{day}{day}AS{day + 1}";
+                        string vehicleId = $"BD{day}{day}AS{numberOfVehicles}";
                         VehicleAccess @in = new VehicleAccess
                         {
                             Direction = AccessDirections.In,
