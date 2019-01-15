@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -18,7 +19,7 @@ namespace Parkmeter.Functions
         public static IActionResult GetParkingStatusAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getparkingstatus/{parkingId}")] HttpRequestMessage req,
             [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint", 
-            SqlQuery = "SELECT * FROM c WHERE c.parkingID = {parkingId}", CreateIfNotExists = true)] IEnumerable<dynamic> docs,
+            SqlQuery = "SELECT * FROM c WHERE c.ParkingID = {parkingId}", CreateIfNotExists = true, PartitionKey ="ParkingID")] IEnumerable<dynamic> docs,
             int parkingId,
             ILogger log)
         {
@@ -28,18 +29,33 @@ namespace Parkmeter.Functions
 
             ParkingStatus status = new ParkingStatus
             {
-                BusySpaces = doc.busySpaces,
-                ParkingId = doc.parkingID
+                BusySpaces = (int)doc.busySpaces,
+                ParkingId = doc.ParkingID
             };
 
             return new OkObjectResult(status);
         }
 
+        [FunctionName("CosmosDB-GetLastVehicleAccess")]
+        public static IActionResult GetLastVehicleAccess(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getlastvehicleaccess/{parkingId}/{vehicleId}")] HttpRequestMessage req,
+            [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint",
+            SqlQuery = "SELECT TOP 1 * FROM c WHERE c.Access.ParkingID = {parkingId} AND c.Access.VehicleID = {vehicleId} ORDER BY c.Access.TimeStamp DESC", CreateIfNotExists = true, PartitionKey ="ParkingID")] IEnumerable<VehicleAccessDocument> docs,
+            int parkingId,
+            string vehicleId,
+            ILogger log)
+        {
+            if (docs == null || docs.Count() == 0)
+                return new NotFoundResult();
+            var doc = docs.FirstOrDefault();
+
+            return new OkObjectResult(doc.Access);
+        }
 
         [FunctionName("CosmosDB-RegisterAccess")]
-        public static IActionResult RegisterAccessAsync(
+        public static async Task<IActionResult> RegisterAccessAsync(
           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "registeraccess")] HttpRequestMessage req,
-          [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint", CreateIfNotExists = true)] DocumentClient client,
+          [CosmosDB(ConnectionStringSetting = "CosmosDBEndpoint")] DocumentClient client,
           ILogger log)
         {
             // Get request body
@@ -47,14 +63,61 @@ namespace Parkmeter.Functions
             if (string.IsNullOrEmpty(data))
                 return new BadRequestObjectResult("no payload");
 
-            VehicleAccess va = JsonConvert.DeserializeObject<VehicleAccess>(data);
+            var va = new VehicleAccessDocument() { Access = JsonConvert.DeserializeObject<VehicleAccess>(data) };
             if (va != null)
             {
-                client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"), va, new RequestOptions { PostTriggerInclude = new List<string> { "UpdateParkingStatus" } });
+                var db = new Database();
+                db.Id = "ParkingLedger";
+                var database = await client.CreateDatabaseIfNotExistsAsync(db);
+                var collection = await client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(db.Id), new DocumentCollection() { Id = "VehicleAccesses" });
+                
+                var doc = await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"), va);
                 return new OkResult();
             }
 
             return new BadRequestResult();
+        }
+
+
+        [FunctionName("CosmosDB-RegisterAccessStatusTrigger")]
+        public static async Task Run([CosmosDBTrigger(databaseName: "ParkingLedger", collectionName: "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint",
+            LeaseCollectionName = "leases", CreateLeaseCollectionIfNotExists = true)]IReadOnlyList<Document> documents,
+            [CosmosDB(ConnectionStringSetting = "CosmosDBEndpoint")] DocumentClient client,
+            ILogger log)
+        {
+            if (documents != null && documents.Count > 0)
+            {
+                if (JsonConvert.DeserializeObject<ParkingStatusDocument>(documents[0].ToString()).isStatus == true)
+                    return;
+                
+                var accessDocument = JsonConvert.DeserializeObject<VehicleAccessDocument>( documents[0].ToString());
+
+                var query = client.CreateDocumentQuery<ParkingStatusDocument>(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"))
+                    .Where(ps=>ps.id == $"_status_{accessDocument.Access.ParkingID}");
+
+                ParkingStatusDocument psd = null;
+                if (query.Count() == 0)
+                {
+                    psd = new ParkingStatusDocument()
+                    {
+                        id = $"_status_{accessDocument.Access.ParkingID}",
+                        ParkingID = accessDocument.Access.ParkingID,
+                        isStatus = true,
+                        busySpaces = 0
+                    };
+                }
+                else
+                {
+                    psd = query.AsEnumerable().FirstOrDefault();
+                }
+
+                if (psd != null)
+                {
+                    psd.busySpaces += (int)accessDocument.Access.Direction;
+                    var doc = await client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"), psd);
+                }
+                
+            }
         }
     }
 }
