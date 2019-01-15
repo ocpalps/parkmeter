@@ -19,7 +19,7 @@ namespace Parkmeter.Functions
         public static IActionResult GetParkingStatusAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getparkingstatus/{parkingId}")] HttpRequestMessage req,
             [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint", 
-            SqlQuery = "SELECT * FROM c WHERE c.parkingID = {parkingId}", CreateIfNotExists = true, PartitionKey ="ParkingID")] IEnumerable<dynamic> docs,
+            SqlQuery = "SELECT * FROM c WHERE c.ParkingID = {parkingId}", CreateIfNotExists = true, PartitionKey ="ParkingID")] IEnumerable<dynamic> docs,
             int parkingId,
             ILogger log)
         {
@@ -29,8 +29,8 @@ namespace Parkmeter.Functions
 
             ParkingStatus status = new ParkingStatus
             {
-                BusySpaces = doc.busySpaces,
-                ParkingId = doc.parkingID
+                BusySpaces = (int)doc.busySpaces,
+                ParkingId = doc.ParkingID
             };
 
             return new OkObjectResult(status);
@@ -76,6 +76,48 @@ namespace Parkmeter.Functions
             }
 
             return new BadRequestResult();
+        }
+
+
+        [FunctionName("CosmosDB-RegisterAccessStatusTrigger")]
+        public static async Task Run([CosmosDBTrigger(databaseName: "ParkingLedger", collectionName: "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint",
+            LeaseCollectionName = "leases", CreateLeaseCollectionIfNotExists = true)]IReadOnlyList<Document> documents,
+            [CosmosDB(ConnectionStringSetting = "CosmosDBEndpoint")] DocumentClient client,
+            ILogger log)
+        {
+            if (documents != null && documents.Count > 0)
+            {
+                if (JsonConvert.DeserializeObject<ParkingStatusDocument>(documents[0].ToString()).isStatus == true)
+                    return;
+                
+                var accessDocument = JsonConvert.DeserializeObject<VehicleAccessDocument>( documents[0].ToString());
+
+                var query = client.CreateDocumentQuery<ParkingStatusDocument>(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"))
+                    .Where(ps=>ps.id == $"_status_{accessDocument.Access.ParkingID}");
+
+                ParkingStatusDocument psd = null;
+                if (query.Count() == 0)
+                {
+                    psd = new ParkingStatusDocument()
+                    {
+                        id = $"_status_{accessDocument.Access.ParkingID}",
+                        ParkingID = accessDocument.Access.ParkingID,
+                        isStatus = true,
+                        busySpaces = 0
+                    };
+                }
+                else
+                {
+                    psd = query.AsEnumerable().FirstOrDefault();
+                }
+
+                if (psd != null)
+                {
+                    psd.busySpaces += (int)accessDocument.Access.Direction;
+                    var doc = await client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"), psd);
+                }
+                
+            }
         }
     }
 }
