@@ -40,7 +40,7 @@ namespace Parkmeter.Functions
         public static IActionResult GetLastVehicleAccess(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getlastvehicleaccess/{parkingId}/{vehicleId}")] HttpRequestMessage req,
             [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint",
-            SqlQuery = "SELECT TOP 1 * FROM c WHERE c.ParkingID = {parkingId} AND c.VehicleID = {vehicleId} ORDER BY c.TimeStamp DESC", CreateIfNotExists = true, PartitionKey ="ParkingID")] IEnumerable<dynamic> docs,
+            SqlQuery = "SELECT TOP 1 * FROM c WHERE c.Access.ParkingID = {parkingId} AND c.Access.VehicleID = {vehicleId} ORDER BY c.Access.TimeStamp DESC", CreateIfNotExists = true, PartitionKey ="ParkingID")] IEnumerable<VehicleAccessDocument> docs,
             int parkingId,
             string vehicleId,
             ILogger log)
@@ -49,9 +49,7 @@ namespace Parkmeter.Functions
                 return new NotFoundResult();
             var doc = docs.FirstOrDefault();
 
-            VehicleAccess va = JsonConvert.DeserializeObject<VehicleAccess>(doc.ToString());
-
-            return new OkObjectResult(va);
+            return new OkObjectResult(doc.Access);
         }
 
         [FunctionName("CosmosDB-RegisterAccess")]
@@ -65,7 +63,7 @@ namespace Parkmeter.Functions
             if (string.IsNullOrEmpty(data))
                 return new BadRequestObjectResult("no payload");
 
-            VehicleAccess va = JsonConvert.DeserializeObject<VehicleAccess>(data);
+            var va = new VehicleAccessDocument() { Access = JsonConvert.DeserializeObject<VehicleAccess>(data) };
             if (va != null)
             {
                 var db = new Database();
