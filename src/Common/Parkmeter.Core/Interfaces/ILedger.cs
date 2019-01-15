@@ -10,5 +10,6 @@ namespace Parkmeter.Core.Interfaces
         void Initialize();
         Task<PersistenceResult> RegisterAccessAsync(VehicleAccess access);
         Task<ParkingStatus> GetParkingStatusAsync(int parkingId);
+        Task<VehicleAccess> GetLastVehicleAccessAsync(int parkingId, string vehicleId);
     }
 }
