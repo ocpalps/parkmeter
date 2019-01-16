@@ -107,13 +107,14 @@ namespace Parkmeter.ParkingDataConsole
                 for (int day = 1; day <= 28; day++)
                 {
                     Random parkingHours = new Random(DateTime.Now.TimeOfDay.Seconds);
+                    Random numOfVehicles = new Random(DateTime.Now.TimeOfDay.Seconds);
 
                     DateTime parkingDay = new DateTime(2018, month, day,0,0,0);
 
                     // less parking on weekends
-                    int numberOfVehicles = 70;
+                    int numberOfVehicles = numOfVehicles.Next(50,70);
                     if (parkingDay.DayOfWeek == DayOfWeek.Sunday || parkingDay.DayOfWeek == DayOfWeek.Saturday)
-                        numberOfVehicles = 15;
+                        numberOfVehicles = numOfVehicles.Next(5, 15);
 
                     for (; numberOfVehicles > 0; numberOfVehicles--)
                     {
