@@ -108,7 +108,7 @@ namespace Parkmeter.ParkingDataConsole
                 {
                     Random parkingHours = new Random(DateTime.Now.TimeOfDay.Seconds);
 
-                    DateTime parkingDay = new DateTime(2018, month, day, parkingHours.Next(6,10), parkingHours.Next(2,56), 00);
+                    DateTime parkingDay = new DateTime(2018, month, day,0,0,0);
 
                     // less parking on weekends
                     int numberOfVehicles = 70;
@@ -117,6 +117,7 @@ namespace Parkmeter.ParkingDataConsole
 
                     for (; numberOfVehicles > 0; numberOfVehicles--)
                     {
+
                         string vehicleId = $"BD{day}{day}AS{numberOfVehicles}";
                         VehicleAccess @in = new VehicleAccess
                         {
@@ -124,7 +125,7 @@ namespace Parkmeter.ParkingDataConsole
                             ParkingID = 1,
                             SpaceID = day,
                             VehicleID = vehicleId,
-                            TimeStamp = parkingDay,
+                            TimeStamp = parkingDay.AddHours(parkingHours.Next(6,10)),
                             VehicleType = VehicleTypes.Car
                         };
                         VehicleAccess @out = new VehicleAccess
