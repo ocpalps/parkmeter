@@ -117,7 +117,7 @@ namespace Parkmeter.ParkingDataConsole
 
                     for (; numberOfVehicles > 0; numberOfVehicles--)
                     {
-
+                        var inDate = parkingDay.AddHours(parkingHours.Next(6, 10));
                         string vehicleId = $"BD{day}{day}AS{numberOfVehicles}";
                         VehicleAccess @in = new VehicleAccess
                         {
@@ -125,7 +125,7 @@ namespace Parkmeter.ParkingDataConsole
                             ParkingID = 1,
                             SpaceID = day,
                             VehicleID = vehicleId,
-                            TimeStamp = parkingDay.AddHours(parkingHours.Next(6,10)),
+                            TimeStamp = inDate,
                             VehicleType = VehicleTypes.Car
                         };
                         VehicleAccess @out = new VehicleAccess
@@ -134,7 +134,7 @@ namespace Parkmeter.ParkingDataConsole
                             ParkingID = 1,
                             SpaceID = day,
                             VehicleID = vehicleId,
-                            TimeStamp = parkingDay.AddHours(parkingHours.Next(1,8)), //max 8 hours of parking
+                            TimeStamp = inDate.AddHours(parkingHours.Next(1,8)), //max 8 hours of parking
                             VehicleType = VehicleTypes.Car
                         };
                         list.Add(new VehicleAccessDocument() { Access = @in, id = Guid.NewGuid().ToString() });
