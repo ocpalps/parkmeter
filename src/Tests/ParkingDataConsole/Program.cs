@@ -112,7 +112,7 @@ namespace Parkmeter.ParkingDataConsole
                     DateTime parkingDay = new DateTime(2018, month, day,0,0,0);
 
                     // less parking on weekends
-                    int numberOfVehicles = numOfVehicles.Next(50,70);
+                    int numberOfVehicles = numOfVehicles.Next(50,70) + numOfVehicles.Next(34, 70);
                     if (parkingDay.DayOfWeek == DayOfWeek.Sunday || parkingDay.DayOfWeek == DayOfWeek.Saturday)
                         numberOfVehicles = numOfVehicles.Next(5, 15);
 
