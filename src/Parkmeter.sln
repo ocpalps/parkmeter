@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28516.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parkmeter.Api", "BackEnd\Parkmeter.API\Parkmeter.Api.csproj", "{D73D604C-FBBF-4662-A147-F7C60F3A7CF0}"
 EndProject
@@ -38,7 +38,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParkingDataConsole", "Tests
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Intelligence", "Intelligence", "{145F4850-B6EC-4412-B48A-E6E3BB77299D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parkmeter", "Parkmeter\Parkmeter.csproj", "{424B576C-6DB0-41F5-9E12-8746837F7D76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parkmeter.Bot", "Intelligence\Parkmeter.Bot.csproj", "{424B576C-6DB0-41F5-9E12-8746837F7D76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
