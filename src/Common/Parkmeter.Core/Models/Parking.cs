@@ -34,6 +34,8 @@ namespace Parkmeter.Core.Models
 
         public static bool operator ==(Parking p, Parking p2)
         {
+            if (p == null && p2 == null) return true;
+            if (p != null && p2 == null) return false;
             return p.Equals(p2);
         }
 

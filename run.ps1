@@ -25,4 +25,4 @@ Start-Process npm -ArgumentList "install" -wait
 
 Set-Location "src\BackEnd\Parkmeter.Functions\bin\Debug\netcoreapp2.1"
 Start-Process -FilePath "..\..\..\..\..\..\node_modules\azure-functions-core-tools\bin\func.exe" -ArgumentList "start"
-Set-Location "..\..\..\"
+Set-Location "..\..\..\..\..\"
