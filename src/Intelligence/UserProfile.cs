@@ -13,5 +13,9 @@ namespace Parkmeter
 		public string LicencePlate { get; set; }
 
 		public string ParkingName { get; set; }
+
+		public string VehicleType { get; set; }
+
+		public string SpaceID { get; set; }
 	}
 }

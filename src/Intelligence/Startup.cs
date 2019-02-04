@@ -53,13 +53,22 @@ namespace Parkmeter
 			services.AddBot<ParkmeterBot>(options =>
 		   {
 			   var secretKey = Configuration.GetSection("botFileSecret")?.Value;
+			   var botFilePath = Configuration.GetSection("botFilePath")?.Value;
+
+			   // Loads .bot configuration file and adds a singleton that your Bot can access through dependency injection.
+			   var botConfig = BotConfiguration.Load(botFilePath ?? @".\nlp-with-luis.bot", secretKey);
+			   services.AddSingleton(sp => botConfig ?? throw new InvalidOperationException($"The .bot config file could not be loaded. ({botConfig})"));
+
+			   //TODO: LUIS(2) -> after adding LUIS you can comment this part
+			   /*
+			   var secretKey = Configuration.GetSection("botFileSecret")?.Value;
 
 				// Loads .bot configuration file and adds a singleton that your Bot can access through dependency injection.
 				var botConfig = BotConfiguration.Load(@".\Parkmeter.bot", secretKey);
-			   services.AddSingleton(sp => botConfig);
+			   services.AddSingleton(sp => botConfig);*/
 
-				// Retrieve current endpoint.
-				var service = botConfig.Services.Where(s => s.Type == "endpoint" && s.Name == "development").FirstOrDefault();
+			   // Retrieve current endpoint.
+			   var service = botConfig.Services.Where(s => s.Type == "endpoint" && s.Name == "development").FirstOrDefault();
 			   if (!(service is EndpointService endpointService))
 			   {
 				   throw new InvalidOperationException($"The .bot file does not contain a development endpoint.");
