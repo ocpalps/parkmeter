@@ -1,2 +1,0 @@
-
-Process is terminating due to StackOverflowException.

@@ -1,0 +1,18 @@
+ public async Task<VehicleAccess> GetLastVehicleAccessAsync(int parkingId, string vehicleId)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    client.BaseAddress = Endpoint;
+                    var result = await client.GetAsync($"getlastvehicleaccess/{parkingId}/{vehicleId}");
+                    result.EnsureSuccessStatusCode();
+                    VehicleAccess access = JsonConvert.DeserializeObject<VehicleAccess>(await result.Content.ReadAsStringAsync());
+                    return access;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+            }
+}
