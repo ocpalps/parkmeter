@@ -18,7 +18,7 @@ namespace Parkmeter.Functions
         [FunctionName("CosmosDB-GetParkingStatus")]
         public static IActionResult GetParkingStatusAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getparkingstatus/{parkingId}")] HttpRequestMessage req,
-            [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint", 
+            [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint",
             SqlQuery = "SELECT * FROM c WHERE c.ParkingID = {parkingId}", CreateIfNotExists = true, PartitionKey ="ParkingID")] IEnumerable<dynamic> docs,
             int parkingId,
             ILogger log)
@@ -34,6 +34,22 @@ namespace Parkmeter.Functions
             };
 
             return new OkObjectResult(status);
+        }
+
+        [FunctionName("CosmosDB-GetLastVehicleAccess")]
+        public static IActionResult GetLastVehicleAccess(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getlastvehicleaccess/{parkingId}/{vehicleId}")] HttpRequestMessage req,
+            [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint",
+            SqlQuery = "SELECT TOP 1 * FROM c WHERE c.Access.ParkingID = {parkingId} AND c.Access.VehicleID = {vehicleId} ORDER BY c.Access.TimeStamp DESC", CreateIfNotExists = true, PartitionKey ="ParkingID")] IEnumerable<VehicleAccessDocument> docs,
+            int parkingId,
+            string vehicleId,
+            ILogger log)
+        {
+            if (docs == null || docs.Count() == 0)
+                return new NotFoundResult();
+            var doc = docs.FirstOrDefault();
+
+            return new OkObjectResult(doc.Access);
         }
 
         [FunctionName("CosmosDB-RegisterAccess")]
@@ -54,7 +70,7 @@ namespace Parkmeter.Functions
                 db.Id = "ParkingLedger";
                 var database = await client.CreateDatabaseIfNotExistsAsync(db);
                 var collection = await client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(db.Id), new DocumentCollection() { Id = "VehicleAccesses" });
-                
+
                 var doc = await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"), va);
                 return new OkResult();
             }
@@ -73,11 +89,11 @@ namespace Parkmeter.Functions
             {
                 if (JsonConvert.DeserializeObject<ParkingStatusDocument>(documents[0].ToString()).isStatus == true)
                     return;
-                
-                var accessDocument = JsonConvert.DeserializeObject<VehicleAccessDocument>( documents[0].ToString());
+
+                var accessDocument = JsonConvert.DeserializeObject<VehicleAccessDocument>(documents[0].ToString());
 
                 var query = client.CreateDocumentQuery<ParkingStatusDocument>(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"))
-                    .Where(ps=>ps.id == $"_status_{accessDocument.Access.ParkingID}");
+                    .Where(ps => ps.id == $"_status_{accessDocument.Access.ParkingID}");
 
                 ParkingStatusDocument psd = null;
                 if (query.Count() == 0)
@@ -100,7 +116,7 @@ namespace Parkmeter.Functions
                     psd.busySpaces += (int)accessDocument.Access.Direction;
                     var doc = await client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"), psd);
                 }
-                
+
             }
         }
     }
