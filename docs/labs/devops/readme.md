@@ -44,11 +44,11 @@ In your DevOps repo you should now have all the source code:
   - Choose **ASP.NET Core** template
   - Rename to *ParkmeterLab-Backend*
   - Set **Agent Pool** to *Hosted VS2017*
-  - Set **Project to restore and build** to ***\Parkmeter.Api.csproj*
+  - Set **Project to restore and build** to ***/Parkmeter.Api.csproj*
   - In **Variables** set *BuildConfiguration* to *Backend*
   - In **Triggers** enable *Continous Integration* and add two path filters:
-    - *\src\BackEnd*
-    - *\src\Tests*
+    - */src/BackEnd*
+    - */src/Tests*
 
     ![pathfilters](images/devops-pathfilters.png)
 
@@ -60,7 +60,7 @@ In your DevOps repo you should now have all the source code:
   - Choose **ASP.NET Core** template
   - Rename to *ParkmeterLab-Frontend*
   - Set **Agent Pool** to *Hosted VS2017*
-  - Set **Project to restore and build** to ***\Parkmeter.Admin.csproj*
+  - Set **Project to restore and build** to ***/Parkmeter.Admin.csproj*
   - In **Variables** set *BuildConfiguration* to *Frontend*
   - In **Triggers** enable *Continous Integration* and add a path filters:
     - *\src\FrontEnd*
