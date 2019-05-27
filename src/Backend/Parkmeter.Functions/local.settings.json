@@ -4,7 +4,13 @@
   },
   "IsEncrypted": false,
   "Values": {
+    "ImageStorage": "DefaultEndpointsProtocol=https;AccountName=demostoragetemp;AccountKey=RR7NkcC8YWQTtaSy64u9ZJ/7vRw5ZTI9athQhxA+T7c7gFVv4I+HaJgblsTQ57Idg7CsUIP2YLdkqzllR4FZ+g==;BlobEndpoint=https://demostoragetemp.blob.core.windows.net/;QueueEndpoint=https://demostoragetemp.queue.core.windows.net/;TableEndpoint=https://demostoragetemp.table.core.windows.net/;FileEndpoint=https://demostoragetemp.file.core.windows.net/;",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet"
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "ComputerVisionKey": "a5ed7766e4ab4e74b10cdee430d0a84e",
+    "ComputerVisionEndpoint": "https://westeurope.api.cognitive.microsoft.com",
+    "EventGridUri": "https://vehiclestraffic.westeurope-1.eventgrid.azure.net/api/events",
+    "EventGridKey": "IR8+6tc57gKA7gjKhaVxATqBwRgOkGKmLosytgH4n94=",
+    "AzureWebJobsDashboard": "DefaultEndpointsProtocol=https;AccountName=demostoragetemp;AccountKey=RR7NkcC8YWQTtaSy64u9ZJ/7vRw5ZTI9athQhxA+T7c7gFVv4I+HaJgblsTQ57Idg7CsUIP2YLdkqzllR4FZ+g=="
   }
 }
