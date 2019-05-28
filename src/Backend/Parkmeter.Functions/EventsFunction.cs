@@ -86,12 +86,14 @@ namespace Parkmeter.Functions
                 var matched = System.Text.RegularExpressions.Regex.Match(plate, pattern);
                 if (matched.Success)
                 {
-                    var succeded = new EventGridHelper.ParkmeterEvent() {
+                    var succeded = new EventGridHelper.ParkmeterEvent()
+                    {
                         Message = "License plate recognized",
                         Type = EventGridHelper.EventType.Succeded,
-                        Data = JsonConvert.SerializeObject( new VehicleAccess() { Direction=1, ParkingID=1, SpaceID=2, VehicleID=plate, VehicleType= VehicleTypes.Car } );
+                        Data = JsonConvert.SerializeObject(new VehicleAccess() { Direction = AccessDirections.In, ParkingID = 1, SpaceID = 2, VehicleID = plate, VehicleType = VehicleTypes.Car })
+                    };
 
-                    log.LogInformation(Message);
+                    log.LogInformation(succeded.Message);
 
                     EventGridHelper.SendEvent(succeded);
                     found = true;
