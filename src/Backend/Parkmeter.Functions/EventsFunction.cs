@@ -107,6 +107,7 @@ namespace Parkmeter.Functions
                 var matched = System.Text.RegularExpressions.Regex.Match(plate, pattern);
                 if (matched.Success)
                 {
+<<<<<<< HEAD
                     //Enqueue message to service bus queue
                     vehicleAccessQueue.AddAsync(new VehicleAccess()
                     {
@@ -116,6 +117,14 @@ namespace Parkmeter.Functions
                         VehicleID = plate,
                         VehicleType = VehicleTypes.Car
                     }));
+=======
+                    var succeded = new EventGridHelper.ParkmeterEvent()
+                    {
+                        Message = "License plate recognized",
+                        Type = EventGridHelper.EventType.Succeded,
+                        Data = JsonConvert.SerializeObject(new VehicleAccess() { Direction = AccessDirections.In, ParkingID = 1, SpaceID = 2, VehicleID = plate, VehicleType = VehicleTypes.Car })
+                    };
+>>>>>>> dc6ce02a12c46cd9fce4d3ddede52bf7ce732108
 
                     log.LogInformation(succeded.Message);
 

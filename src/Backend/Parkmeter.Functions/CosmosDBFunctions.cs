@@ -65,7 +65,7 @@ namespace Parkmeter.Functions
 
             var va = new VehicleAccessDocument() { Access = JsonConvert.DeserializeObject<VehicleAccess>(data) };
 
-            return await FunctionsHelper.RegisterAccessAsync(va, client, log);
+            return await FunctionsHelper.SaveEntryAsync(va,"VehicleAccesses", client, log);
         }
 
 

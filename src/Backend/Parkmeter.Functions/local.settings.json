@@ -4,6 +4,7 @@
   },
   "IsEncrypted": false,
   "Values": {
+    "ServiceBusConnection": "Endpoint=sb://parkmeter.servicebus.windows.net/;SharedAccessKeyName=all;SharedAccessKey=4kRQgWs/RC+y7Xb8AJIYrYhIjnvNhYFFDEQpwA5omqk=",
     "ImageStorage": "DefaultEndpointsProtocol=https;AccountName=demostoragetemp;AccountKey=RR7NkcC8YWQTtaSy64u9ZJ/7vRw5ZTI9athQhxA+T7c7gFVv4I+HaJgblsTQ57Idg7CsUIP2YLdkqzllR4FZ+g==;BlobEndpoint=https://demostoragetemp.blob.core.windows.net/;QueueEndpoint=https://demostoragetemp.queue.core.windows.net/;TableEndpoint=https://demostoragetemp.table.core.windows.net/;FileEndpoint=https://demostoragetemp.file.core.windows.net/;",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
