@@ -64,18 +64,8 @@ namespace Parkmeter.Functions
                 return new BadRequestObjectResult("no payload");
 
             var va = new VehicleAccessDocument() { Access = JsonConvert.DeserializeObject<VehicleAccess>(data) };
-            if (va != null)
-            {
-                var db = new Database();
-                db.Id = "ParkingLedger";
-                var database = await client.CreateDatabaseIfNotExistsAsync(db);
-                var collection = await client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(db.Id), new DocumentCollection() { Id = "VehicleAccesses" });
 
-                var doc = await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"), va);
-                return new OkResult();
-            }
-
-            return new BadRequestResult();
+            return await FunctionsHelper.RegisterAccessAsync(va, client, log);
         }
 
 

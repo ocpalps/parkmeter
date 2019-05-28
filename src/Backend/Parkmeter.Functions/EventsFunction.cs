@@ -9,25 +9,46 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.EventGrid.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Parkmeter.Core.Models;
 
 namespace Parkmeter.Functions
 {
     public static class EventsFunction
     {
         [FunctionName("ErrorEvent")]
-        public static void ErrorEvent([EventGridTrigger]EventGridEvent eventGridEvent, ILogger log)
+        public static async Task ErrorEvent([EventGridTrigger]EventGridEvent eventGridEvent,
+            [CosmosDB(ConnectionStringSetting = "CosmosDBEndpoint")] DocumentClient client, 
+            ILogger log)
         {
+            var error = new
+            {
+                Message = eventGridEvent.Data.ToString()
+            };
+
+            await FunctionsHelper.SaveEntryAsync(error, "Errors", client, log);
+
             log.LogInformation("Error Event: " + eventGridEvent.Data.ToString());
         }
 
         [FunctionName("SuccededEvent")]
-        public static void SuccededEvent([EventGridTrigger]EventGridEvent eventGridEvent, ILogger log)
+        public static async Task SuccededEvent([EventGridTrigger]EventGridHelper.ParkmeterEvent eventGridEvent,
+            [CosmosDB(ConnectionStringSetting = "CosmosDBEndpoint")] DocumentClient client,
+            ILogger log)
         {
+            var va = new VehicleAccessDocument() { 
+                Access = JsonConvert.DeserializeObject<VehicleAccess>(eventGridEvent.Data)
+            };
+
+
+            await FunctionsHelper.SaveEntryAsync(va, "VehicleAccesses", client, log);
             log.LogInformation("Success Event: " + eventGridEvent.Data.ToString());
         }
 
@@ -54,6 +75,7 @@ namespace Parkmeter.Functions
                     Type = EventGridHelper.EventType.Error
                 };
                 EventGridHelper.SendEvent(failure);
+                log.LogInformation($"Error event sent");
             }
 
             bool found = false;
@@ -67,9 +89,15 @@ namespace Parkmeter.Functions
                     var succeded = new EventGridHelper.ParkmeterEvent() {
                         Message = "License plate recognized",
                         Type = EventGridHelper.EventType.Succeded,
-                        Data = plate };
+                        Data = JsonConvert.SerializeObject( new VehicleAccess() { Direction=1, ParkingID=1, SpaceID=2, VehicleID=plate, VehicleType= VehicleTypes.Car } );
+
+                    log.LogInformation(Message);
+
                     EventGridHelper.SendEvent(succeded);
                     found = true;
+
+                    log.LogInformation($"Succeded event sent");
+
                     break;
                 }
             }
