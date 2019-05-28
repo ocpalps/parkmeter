@@ -15,20 +15,31 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Azure.WebJobs.ServiceBus;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Parkmeter.Core.Models;
+using static Parkmeter.Functions.EventGridHelper;
 
 namespace Parkmeter.Functions
 {
     public static class EventsFunction
     {
         [FunctionName("ErrorEvent")]
-        public static async Task ErrorEvent([EventGridTrigger]EventGridEvent eventGridEvent,
+        public static async Task ErrorEvent([EventGridTrigger]ParkmeterEvent eventGridEvent,
             ILogger log)
         {
            
-            log.LogInformation("Error Event: " + eventGridEvent.Data.ToString());
+            log.LogInformation("Error Event: " + eventGridEvent.Message);
+
+            //TODO: do something useful
+        }
+
+        [FunctionName("SucceededEvent")]
+        public static async Task SucceededEvent([EventGridTrigger]ParkmeterEvent eventGridEvent, ILogger log)
+        {
+
+            log.LogInformation("Succeeded Event: " + eventGridEvent.Message);
 
             //TODO: do something useful
         }
@@ -48,13 +59,13 @@ namespace Parkmeter.Functions
                 await FunctionsHelper.SaveEntryAsync(va, "VehicleAccesses", client, log);
                 log.LogInformation($"Entry saved succesfully: {vehicleAccess.VehicleID}");
 
-                var succeded = new EventGridHelper.ParkmeterEvent()
+                var succeeded = new EventGridHelper.ParkmeterEvent()
                 {
                     Message = $"Vehicle: {vehicleAccess.VehicleID} - Direction: {vehicleAccess.Direction.ToString()}",
-                    Type = EventGridHelper.EventType.Succeded
+                    Type = EventGridHelper.EventType.Succeeded
                 };
-                EventGridHelper.SendEvent(succeded);
-                log.LogInformation($"Succeded event sent");
+                EventGridHelper.SendEvent(succeeded);
+                log.LogInformation($"Succeeded event sent");
 
             }
             catch (Exception ex)
@@ -107,26 +118,17 @@ namespace Parkmeter.Functions
                 var matched = System.Text.RegularExpressions.Regex.Match(plate, pattern);
                 if (matched.Success)
                 {
-<<<<<<< HEAD
                     //Enqueue message to service bus queue
-                    vehicleAccessQueue.AddAsync(new VehicleAccess()
+                    await vehicleAccessQueue.AddAsync(new VehicleAccess()
                     {
                         Direction = AccessDirections.In,
                         ParkingID = 1,
                         SpaceID = 2,
                         VehicleID = plate,
                         VehicleType = VehicleTypes.Car
-                    }));
-=======
-                    var succeded = new EventGridHelper.ParkmeterEvent()
-                    {
-                        Message = "License plate recognized",
-                        Type = EventGridHelper.EventType.Succeded,
-                        Data = JsonConvert.SerializeObject(new VehicleAccess() { Direction = AccessDirections.In, ParkingID = 1, SpaceID = 2, VehicleID = plate, VehicleType = VehicleTypes.Car })
-                    };
->>>>>>> dc6ce02a12c46cd9fce4d3ddede52bf7ce732108
+                    });
 
-                    log.LogInformation(succeded.Message);
+                    log.LogInformation("Message enqueued");
 
                     found = true;
 

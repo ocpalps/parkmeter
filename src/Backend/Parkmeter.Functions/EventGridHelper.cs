@@ -12,7 +12,7 @@ namespace Parkmeter.Functions
 
         public enum EventType
         {
-            Succeded,
+            Succeeded,
             Error
         }
         public class ParkmeterEvent
@@ -47,7 +47,7 @@ namespace Parkmeter.Functions
                 {
                     Id = Guid.NewGuid(),
                     Subject = @event.Message,
-                    EventType = @event.Type == EventType.Error ? "parkmeter.event.error" : "parkmeter.event.succeded",
+                    EventType = @event.Type == EventType.Error ? "parkmeter.event.error" : "parkmeter.event.succeeded",
                     EventTime = DateTime.UtcNow,
                     Data = @event.Data
                 };
