@@ -147,10 +147,13 @@ namespace Parkmeter.Data.NoSql
             {
                 if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
+                    var partitionKeys = new System.Collections.ObjectModel.Collection<string>();
+                    partitionKeys.Add("/Access/ParkingID");
+
                     await _client.CreateDocumentCollectionAsync(
                         UriFactory.CreateDatabaseUri(_databaseId),
-                        new DocumentCollection { Id = _collectionId },
-                        new RequestOptions { OfferThroughput = 1000 });
+                        new DocumentCollection { Id = _collectionId, PartitionKey = new PartitionKeyDefinition() { Paths = partitionKeys } },
+                        new RequestOptions { OfferThroughput = 1000, PartitionKey = new PartitionKey("/Access/ParkingID") });
                 }
                 else
                 {

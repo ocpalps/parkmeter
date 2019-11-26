@@ -57,8 +57,11 @@ namespace Parkmeter.ParkingDataConsole
 
             string dbName = "ParkingLedger";
             string collectionName = "VehicleAccesses";
+            var partitionKeys = new System.Collections.ObjectModel.Collection<string>();
+            partitionKeys.Add("/Access/ParkingID");
             await this.client.CreateDatabaseIfNotExistsAsync(new Database { Id = dbName });
-            var collection = await this.client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(dbName), new DocumentCollection { Id = collectionName });
+            var collection = await this.client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(dbName), 
+                new DocumentCollection { Id = collectionName, PartitionKey = new PartitionKeyDefinition() { Paths = partitionKeys } });
 
             // manual update
             //var list = CreateAccessesList();
@@ -108,11 +111,12 @@ namespace Parkmeter.ParkingDataConsole
                 {
                     Random parkingHours = new Random(DateTime.Now.TimeOfDay.Seconds);
                     Random numOfVehicles = new Random(DateTime.Now.TimeOfDay.Seconds);
+                    Random parkId = new Random(DateTime.Now.TimeOfDay.Seconds);
 
                     DateTime parkingDay = new DateTime(2018, month, day,0,0,0);
 
                     // less parking on weekends
-                    int numberOfVehicles = numOfVehicles.Next(50,70) + numOfVehicles.Next(34, 70);
+                    int numberOfVehicles = numOfVehicles.Next(30, 50) + numOfVehicles.Next(34, 70);
                     if (parkingDay.DayOfWeek == DayOfWeek.Sunday || parkingDay.DayOfWeek == DayOfWeek.Saturday)
                         numberOfVehicles = numOfVehicles.Next(5, 15);
 
@@ -120,10 +124,11 @@ namespace Parkmeter.ParkingDataConsole
                     {
                         var inDate = parkingDay.AddHours(parkingHours.Next(6, 10));
                         string vehicleId = $"BD{day}{day}AS{numberOfVehicles}";
+                        int pID = parkId.Next(1, 4);
                         VehicleAccess @in = new VehicleAccess
                         {
                             Direction = AccessDirections.In,
-                            ParkingID = 1,
+                            ParkingID = pID,
                             SpaceID = day,
                             VehicleID = vehicleId,
                             TimeStamp = inDate,
@@ -132,7 +137,7 @@ namespace Parkmeter.ParkingDataConsole
                         VehicleAccess @out = new VehicleAccess
                         {
                             Direction = AccessDirections.Out,
-                            ParkingID = 1,
+                            ParkingID = pID,
                             SpaceID = day,
                             VehicleID = vehicleId,
                             TimeStamp = inDate.AddHours(parkingHours.Next(1,8)), //max 8 hours of parking

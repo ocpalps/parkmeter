@@ -19,7 +19,7 @@ namespace Parkmeter.Functions
         public static IActionResult GetParkingStatusAsync(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getparkingstatus/{parkingId}")] HttpRequestMessage req,
             [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint",
-            SqlQuery = "SELECT * FROM c WHERE c.ParkingID = {parkingId}", CreateIfNotExists = true, PartitionKey ="ParkingID")] IEnumerable<dynamic> docs,
+            SqlQuery = "SELECT * FROM c WHERE c.ParkingID = {parkingId}", CreateIfNotExists = true, PartitionKey ="/Access/ParkingID")] IEnumerable<dynamic> docs,
             int parkingId,
             ILogger log)
         {
@@ -40,7 +40,7 @@ namespace Parkmeter.Functions
         public static IActionResult GetLastVehicleAccess(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getlastvehicleaccess/{parkingId}/{vehicleId}")] HttpRequestMessage req,
             [CosmosDB("ParkingLedger", "VehicleAccesses", ConnectionStringSetting = "CosmosDBEndpoint",
-            SqlQuery = "SELECT TOP 1 * FROM c WHERE c.Access.ParkingID = {parkingId} AND c.Access.VehicleID = {vehicleId} ORDER BY c.Access.TimeStamp DESC", CreateIfNotExists = true, PartitionKey ="ParkingID")] IEnumerable<VehicleAccessDocument> docs,
+            SqlQuery = "SELECT TOP 1 * FROM c WHERE c.Access.ParkingID = {parkingId} AND c.Access.VehicleID = {vehicleId} ORDER BY c.Access.TimeStamp DESC", CreateIfNotExists = true, PartitionKey ="/Access/ParkingID")] IEnumerable<VehicleAccessDocument> docs,
             int parkingId,
             string vehicleId,
             ILogger log)
@@ -92,7 +92,8 @@ namespace Parkmeter.Functions
 
                 var accessDocument = JsonConvert.DeserializeObject<VehicleAccessDocument>(documents[0].ToString());
 
-                var query = client.CreateDocumentQuery<ParkingStatusDocument>(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"))
+                var query = client.CreateDocumentQuery<ParkingStatusDocument>(UriFactory.CreateDocumentCollectionUri("ParkingLedger", "VehicleAccesses"),
+                    new FeedOptions() { EnableCrossPartitionQuery = true })
                     .Where(ps => ps.id == $"_status_{accessDocument.Access.ParkingID}");
 
                 ParkingStatusDocument psd = null;

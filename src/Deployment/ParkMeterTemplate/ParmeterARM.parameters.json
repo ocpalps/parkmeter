@@ -3,19 +3,19 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "hostingPlanName": {
-      "value": "parkmeterHP"
+      "value": "mamarc-parkmeter-sp"
     },
     "administratorLogin": {
-      "value": "parkmeter"
+      "value": "marcello"
     },
     "applicationName": {
-      "value": "ParkmeterNew"
+      "value": "mamarc-parkmeter"
     },
     "skuName": {
       "value": "S1"
     },
-    "administratorLoginPassword": {
-      "value": "AppPassword0!"
+    "edition": {
+      "value": "Basic"
     }
   }
 }

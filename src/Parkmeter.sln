@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29509.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parkmeter.Api", "BackEnd\Parkmeter.API\Parkmeter.Api.csproj", "{D73D604C-FBBF-4662-A147-F7C60F3A7CF0}"
 EndProject
